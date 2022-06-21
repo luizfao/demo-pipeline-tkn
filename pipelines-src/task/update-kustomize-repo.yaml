@@ -1,88 +1,133 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: update-kustomize-repo
   annotations:
-    tekton.dev/displayName: "Update Kustomize Git Repository"
+    kubectl.kubernetes.io/last-applied-configuration: >
+      {"apiVersion":"tekton.dev/v1beta1","kind":"Task","metadata":{"annotations":{"tekton.dev/displayName":"Update
+      Kustomize Git
+      Repository"},"name":"update-kustomize-repo","namespace":"spring-pipeline"},"spec":{"params":[{"description":"URL
+      of the Git repository to
+      update","name":"gitRepositoryUrl","type":"string"},{"default":"master","description":"Branch
+      or Tag to push the update
+      to","name":"gitRepositoryRevision","type":"string"},{"default":".","description":"Path
+      in the repository to work
+      in.","name":"gitPath","type":"string"},{"default":"./deployment-patch.yaml","description":"Name
+      of the file to be
+      updated","name":"fileName","type":"string"},{"description":"The image to
+      be written into the
+      YAML","name":"image","type":"string"},{"description":"The image tag to be
+      written into the
+      YAML","name":"imageTag","type":"string"},{"default":"true","description":"Log
+      the commands used during
+      execution","name":"verbose","type":"string"}],"steps":[{"image":"alpine/git:v2.26.2","name":"git-checkout","script":"#!/usr/bin/env
+      sh\n\nset -eu -o pipefail\n\nif [[ \"$(params.verbose)\" == \"true\" ]] ;
+      then\n  set -x\n  echo \"**** Cloning $(params.gitRepositoryUrl) into
+      $(pwd)/repository\"\nfi\n\ngit clone \"$(params.gitRepositoryUrl)\"
+      $(pwd)/repository\ncd repository\ngit checkout
+      \"$(params.gitRepositoryRevision)\"\n","volumeMounts":[{"mountPath":"/workspace/repository","name":"repository"}],"workingDir":"/workspace"},{"image":"alpine/git:v2.26.2","name":"update-yaml","script":"#!/usr/bin/env
+      sh\nset -e\n\nif [[ \"$(params.verbose)\" == \"true\" ]] ; then\n  echo
+      \"**** Updating $(params.fileName) image to
+      $(params.image):$(params.imageTag)\"\nfi\n\nsed -i
+      \"s#$(params.image):[a-zA-Z0-9-]\\\\+#$(params.image):$(params.imageTag)#\"
+      ./$(params.gitPath)/$(params.fileName)\n","volumeMounts":[{"mountPath":"/workspace/repository","name":"repository"}],"workingDir":"/workspace/repository"},{"image":"alpine/git:v2.26.2","name":"commit-push-changes","script":"#!/usr/bin/env
+      sh\nset -e\n\ngit config --global user.email \"tekton@tekton.dev\"\ngit
+      config --global user.name \"OpenShift Pipeline\"\ngit add .\ngit commit
+      --allow-empty -m \"[OpenShift Pipeline] Updating $(params.fileName) image
+      to $(params.image):$(params.imageTag)\"\ngit push origin
+      \"$(params.gitRepositoryRevision)\"\n","volumeMounts":[{"mountPath":"/workspace/repository","name":"repository"}],"workingDir":"/workspace/repository"}],"volumes":[{"emptyDir":{},"name":"repository"}]}}
+    tekton.dev/displayName: Update Kustomize Git Repository
+  name: update-kustomize-repo
+  namespace: spring-pipeline
 spec:
   params:
-  - name: gitRepositoryUrl
-    description: URL of the Git repository to update
-    type: string
-  - name: gitRepositoryRevision
-    description: Branch or Tag to push the update to
-    type: string
-    default: master
-  - name: gitPath
-    description: Path in the repository to work in.
-    type: string
-    default: "."
-  - name: fileName
-    description: Name of the file to be updated
-    type: string
-    default: ./deployment-patch.yaml
-  - name: image
-    description: The image to be written into the YAML
-    type: string
-  - name: imageTag
-    description: The image tag to be written into the YAML
-    type: string
-  - name: verbose
-    description: Log the commands used during execution
-    type: string
-    default: "true"
-  volumes:
-  - name: repository
-    emptyDir: {}
+    - description: URL of the Git repository to update
+      name: gitRepositoryUrl
+      type: string
+    - default: master
+      description: Branch or Tag to push the update to
+      name: gitRepositoryRevision
+      type: string
+    - default: .
+      description: Path in the repository to work in.
+      name: gitPath
+      type: string
+    - default: deployment-patches.yaml
+      description: Name of the file to be updated
+      name: fileName
+      type: string
+    - description: The image to be written into the YAML
+      name: image
+      type: string
+    - description: The image tag to be written into the YAML
+      name: imageTag
+      type: string
+    - default: 'true'
+      description: Log the commands used during execution
+      name: verbose
+      type: string
   steps:
-  - name: git-checkout
-    image: alpine/git:v2.26.2
-    workingDir: "/workspace"
-    volumeMounts:
-    - name: repository
-      mountPath: /workspace/repository
-    script: |
-      #!/usr/bin/env sh
+    - image: 'alpine/git:v2.26.2'
+      name: git-checkout
+      resources: {}
+      script: |
+        #!/usr/bin/env sh
 
-      set -eu -o pipefail
+        set -eu -o pipefail
 
-      if [[ "$(params.verbose)" == "true" ]] ; then
-        set -x
-        echo "**** Cloning $(params.gitRepositoryUrl) into $(pwd)/repository"
-      fi
+        if [[ "$(params.verbose)" == "true" ]] ; then
+          set -x
+          echo "**** Cloning $(params.gitRepositoryUrl) into $(pwd)/repository"
+        fi
 
-      git clone "$(params.gitRepositoryUrl)" $(pwd)/repository
-      cd repository
-      git checkout "$(params.gitRepositoryRevision)"
+        git clone "$(params.gitRepositoryUrl)" $(pwd)/repository
+        cd repository
+        git checkout "$(params.gitRepositoryRevision)"
+      volumeMounts:
+        - mountPath: /workspace/repository
+          name: repository
+      workingDir: /workspace
+    - image: 'alpine/git:v2.26.2'
+      name: update-yaml
+      resources: {}
+      script: >
+        #!/usr/bin/env sh 
 
-  - name: update-yaml
-    image: alpine/git:v2.26.2
-    workingDir: "/workspace/repository"
-    volumeMounts:
-    - name: repository
-      mountPath: /workspace/repository
-    script: |
-      #!/usr/bin/env sh
-      set -e
+        set -e
 
-      if [[ "$(params.verbose)" == "true" ]] ; then
-        echo "**** Updating $(params.fileName) image to $(params.image):$(params.imageTag)"
-      fi
+        if [[ "$(params.verbose)" == "true" ]] ; then
+          echo "**** Updating $(params.fileName) image to $(params.image):$(params.imageTag)"
+        fi
 
-      sed -i "s#$(params.image):[a-zA-Z0-9-]\\+#$(params.image):$(params.imageTag)#" ./$(params.gitPath)/$(params.fileName)
+        sed -i
+        "s#$(params.image):[a-zA-Z0-9-]\\+#$(params.image):$(params.imageTag)#"
+        ./$(params.gitPath)/$(params.fileName)
+      volumeMounts:
+        - mountPath: /workspace/repository
+          name: repository
+      workingDir: /workspace/repository
+    - image: 'alpine/git:v2.26.2'
+      name: commit-push-changes
+      resources: {}
+      script: >
+        #!/usr/bin/env sh
 
-  - name: commit-push-changes
-    image: alpine/git:v2.26.2
-    workingDir: "/workspace/repository"
-    volumeMounts:
-    - name: repository
-      mountPath: /workspace/repository
-    script: |
-      #!/usr/bin/env sh
-      set -e
+        set -e 
 
-      git config --global user.email "tekton@tekton.dev"
-      git config --global user.name "OpenShift Pipeline"
-      git add .
-      git commit --allow-empty -m "[OpenShift Pipeline] Updating $(params.fileName) image to $(params.image):$(params.imageTag)"
-      git push origin "$(params.gitRepositoryRevision)"
+        git config --global user.email "tekton@tekton.dev"  
+
+        git config --global user.name "OpenShift Pipeline" 
+
+        git add .
+
+        git commit -m "[OpenShift Pipeline] Updating $(params.fileName) image to
+        $(params.image):$(params.imageTag)"
+
+        git push origin "$(params.gitRepositoryRevision)"
+      volumeMounts:
+        - mountPath: /workspace/repository
+          name: repository
+      workingDir: /workspace/repository
+  volumes:
+    - emptyDir: {}
+      name: repository
+
