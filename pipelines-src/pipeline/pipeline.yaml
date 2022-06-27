@@ -2,31 +2,40 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: hello-service-spring-dev-ci
-  namespace: spring-pipeline
 spec:
   params:
     - default: hello-service
       name: SOURCE_GIT_CONTEXT_DIR
       type: string
-    - default: hello-service-dev
+    - default: hello-service
       description: The application name
       name: APP_NAME
       type: string
-    - description: Namespace where the buildconfig will be or is located
+    - default: hello-spring-dev
+      description: Namespace where the buildconfig will be or is located
       name: NAMESPACE
       type: string
+    - default: hello-spring-dev
+      description: Namespace where the buildconfig will be or is located
+      name: NAMESPACE_DEV
+      type: string
     - default: >-
-        http://nexusrepo-sonatype-nexus-service.nexus.svc:8081/repository/maven-all-public/
+        http://nexus3-nexus.apps.cluster-n2gjh.n2gjh.sandbox1456.opentlc.com/repository/mcentral/
       description: Maven mirror for Maven Builds
       name: MAVEN_MIRROR_URL
+      type: string
+    - default: >-
+        http://nexus3-nexus.apps.cluster-n2gjh.n2gjh.sandbox1456.opentlc.com/repository/mcentral/
+      description: External Registry (Nexus) for the Images
+      name: EXTERNAL_REG_NEXUS_URL
       type: string
   tasks:
     - name: git-clone
       params:
         - name: url
-          value: 'https://github.com/rafamqrs/demo-pipeline-tkn'
+          value: 'https://github.com/almeidarommel/demo-pipeline-tkn'
         - name: revision
-          value: development
+          value: main
         - name: submodules
           value: 'true'
         - name: depth
@@ -40,8 +49,6 @@ spec:
         - name: gitInitImage
           value: >-
             registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8@sha256:da1aedf0b17f2b9dd2a46edc93ff1c0582989414b902a28cd79bad8a035c9ea4
-        - name: userHome
-          value: /tekton/home
       taskRef:
         kind: ClusterTask
         name: git-clone
@@ -66,6 +73,10 @@ spec:
             - '-Djkube.generator.name=$(params.APP_NAME)'
         - name: MAVEN_MIRROR_URL
           value: $(params.MAVEN_MIRROR_URL)
+        - name: SERVER_USER
+          value: admin
+        - name: SERVER_PASSWORD
+          value: admin123
       runAfter:
         - git-clone
         - generate-tag
@@ -83,13 +94,80 @@ spec:
           value: >-
             oc tag $(params.NAMESPACE)/$(params.APP_NAME):latest
             $(params.NAMESPACE)/$(params.APP_NAME):dev-$(tasks.generate-tag.results.image-tag)
-        - name: VERSION
-          value: latest
       runAfter:
         - jkube-build
       taskRef:
         kind: ClusterTask
         name: openshift-client
+    - name: sonarqube-scanner
+      params:
+        - name: SONAR_HOST_URL
+          value: >-
+            http://sonar-sonarqube.apps.cluster-n2gjh.n2gjh.sandbox1456.opentlc.com
+        - name: SONAR_PROJECT_KEY
+          value: test-spring
+        - name: SONAR_AUTH_TOKEN
+          value: sqp_5afbab7e94eacf8137be5375b904fe2ae1a6406f
+      runAfter:
+        - openshift-client-1-5-0
+      taskRef:
+        kind: Task
+        name: sonarqube-scanner
+      workspaces:
+        - name: source
+          workspace: output
+    - name: push-img-to-external-registry
+      params:
+        - name: srcImageURL
+          value: >-
+            docker://image-registry.openshift-image-registry.svc:5000/$(params.NAMESPACE_DEV)/$(params.APP_NAME):dev-$(tasks.generate-tag.results.image-tag)
+        - name: destImageURL
+          value: >-
+            docker://nexus3-nexus.apps.cluster-n2gjh.n2gjh.sandbox1456.opentlc.com/repository/mdocker/$(params.NAMESPACE_DEV)/$(params.APP_NAME):prod-$(tasks.generate-tag.results.image-tag)
+        - name: srcTLSverify
+          value: 'false'
+        - name: destTLSverify
+          value: 'false'
+      runAfter:
+        - sonarqube-scanner
+      taskRef:
+        kind: ClusterTask
+        name: skopeo-copy
+      workspaces:
+        - name: images-url
+          workspace: output
+    - name: update-kustomize-repo
+      params:
+        - name: gitRepositoryUrl
+          value: 'https://github.com/almeidarommel/hellosvc-kustomize-repo'
+        - name: gitRepositoryRevision
+          value: prod
+        - name: gitPath
+          value: hello-service-kustomize/overlays/development
+        - name: fileName
+          value: deployment-patches.yaml
+        - name: image
+          value: hello-service
+        - name: imageTag
+          value: prod-\$(tasks.generate-tag.results.image-tag)
+        - name: verbose
+          value: 'true'
+      runAfter:
+        - push-img-to-external-registry
+      taskRef:
+        kind: Task
+        name: update-kustomize-repo
+    - name: openshift-client-1-5-0
+      params:
+        - name: SCRIPT
+          value: oc help
+        - name: VERSION
+          value: latest
+      runAfter:
+        - oc-tag-image-for-dev
+      taskRef:
+        kind: ClusterTask
+        name: openshift-client-1-5-0
   workspaces:
     - name: output
     - name: maven-settings
