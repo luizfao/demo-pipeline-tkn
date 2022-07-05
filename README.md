@@ -35,7 +35,7 @@ We're gonna use the *spring-pipeline* project to build and run the openshift pip
     edit \
     system:serviceaccount:spring-pipeline:pipeline \
     --rolebinding-name=pipeline-edit \
-    -n hello-spring-dev
+    -n hello-spring-prod
 ```
 
 Ok, without futher ado, we can finally start the Continuous Integration, so we're gonna create the pipeline as img below:
