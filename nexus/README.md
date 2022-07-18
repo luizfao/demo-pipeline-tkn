@@ -80,5 +80,5 @@ spec:
 ### Configure sonar as maven proxy.
 https://blog.sonatype.com/using-nexus-3-as-your-repository-part-1-maven-artifacts
 
-### Configure a external registry with Sonar
+### Configure a external registry with Nexus
 https://tomd.xyz/openshift-nexus-docker-registry/
