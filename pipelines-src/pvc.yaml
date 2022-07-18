@@ -2,7 +2,6 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: workspace-pvc
-  namespace: spring-pipeline
 spec:
   accessModes:
     - ReadWriteOnce
