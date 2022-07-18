@@ -8,7 +8,6 @@ metadata:
     tekton.dev/platforms: linux/amd64
     tekton.dev/tags: security
   name: sonarqube-scanner
-  namespace: spring-pipeline
   labels:
     app.kubernetes.io/version: '0.2'
 spec:
