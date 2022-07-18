@@ -37,7 +37,6 @@ metadata:
       \"$(params.gitRepositoryRevision)\"\n","volumeMounts":[{"mountPath":"/workspace/repository","name":"repository"}],"workingDir":"/workspace/repository"}],"volumes":[{"emptyDir":{},"name":"repository"}]}}
     tekton.dev/displayName: Update Kustomize Git Repository
   name: update-kustomize-repo
-  namespace: spring-pipeline
 spec:
   params:
     - description: URL of the Git repository to update
