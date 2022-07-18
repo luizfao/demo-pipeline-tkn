@@ -14,7 +14,6 @@ metadata:
       to remove newline from the end\ntr --delete '\\n' \u003c/tmp/date.txt
       \u003e$(results.image-tag.path)\n"}]}}
   name: generate-tag
-  namespace: spring-pipeline
 spec:
   results:
     - description: The current date in human readable format
