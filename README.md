@@ -9,11 +9,11 @@ There are   projects that we need to this sample:
 - sonarqube
 
 ### Deploy and create a Nexus instance
-[NEXUS](https://github.com/rafamqrs/demo-pipeline-tkn/nexus/README.md)
+[NEXUS](https://github.com/rafamqrs/demo-pipeline-tkn/blob/main/nexus/README.md)
 
 
 ### Deploy SonarQube
-[SONARQUBE](https://github.com/rafamqrs/demo-pipeline-tkn/sonarqube/sonarqube.adoc)
+[SONARQUBE](https://github.com/rafamqrs/demo-pipeline-tkn/blob/main/sonarqube/sonarqube.adoc)
 
 
 ### Create the springs projects.
