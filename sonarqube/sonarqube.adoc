@@ -2,4 +2,4 @@
 
 For deploying the sonarqube we'll use the sonarqube template
 
-oc new-app -f https://raw.githubusercontent.com/rafamqrs/demo-pipeline-tkn/main/sonarqube/sonarqube-template.yamll --param=SONARQUBE_VERSION=8.2.2
+oc new-app -f https://raw.githubusercontent.com/rafamqrs/demo-pipeline-tkn/main/sonarqube/sonarqube-template.yamll --param=SONARQUBE_VERSION=8.9.9-community
