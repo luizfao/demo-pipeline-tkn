@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: hello-service-spring-dev-ci
+  name: hello-pipeline
 spec:
   params:
     - default: hello-service
@@ -11,21 +11,20 @@ spec:
       description: The application name
       name: APP_NAME
       type: string
-    - default: hello-spring-dev
+    - default: hello-dev
       description: Namespace where the buildconfig will be or is located
       name: NAMESPACE
       type: string
-    - default: hello-spring-dev
+    - default: hello-dev
       description: Namespace where the buildconfig will be or is located
       name: NAMESPACE_DEV
       type: string
     - default: >-
-        http://nexus3-nexus.apps.cluster-n2gjh.n2gjh.sandbox1456.opentlc.com/repository/mcentral/
+        http://nexus-nexus.apps.cluster-lb0eba.lb0eba.example.opentlc.com/repository/mcentral/
       description: Maven mirror for Maven Builds
       name: MAVEN_MIRROR_URL
       type: string
-    - default: >-
-        http://nexus3-nexus.apps.cluster-n2gjh.n2gjh.sandbox1456.opentlc.com/repository/mcentral/
+    - default: nexus-registry-nexus.apps.cluster-lb0eba.lb0eba.example.opentlc.com
       description: External Registry (Nexus) for the Images
       name: EXTERNAL_REG_NEXUS_URL
       type: string
@@ -103,19 +102,31 @@ spec:
       params:
         - name: SONAR_HOST_URL
           value: >-
-            http://sonar-sonarqube.apps.cluster-n2gjh.n2gjh.sandbox1456.opentlc.com
+            https://sonarqube-sonarqube.apps.cluster-lb0eba.lb0eba.example.opentlc.com
         - name: SONAR_PROJECT_KEY
-          value: test-spring
+          value: Java
         - name: SONAR_AUTH_TOKEN
-          value: sqp_5afbab7e94eacf8137be5375b904fe2ae1a6406f
+          value: f7e763db7c404ac90e7a58238f76c76783e1bc7c
       runAfter:
-        - openshift-client-1-5-0
+        - set-image-in-dev
       taskRef:
         kind: Task
         name: sonarqube-scanner
       workspaces:
         - name: source
           workspace: output
+    - name: set-image-in-dev
+      params:
+        - name: SCRIPT
+          value: >-
+            oc set image dc/$(params.APP_NAME)
+            $(params.APP_NAME)=image-registry.openshift-image-registry.svc:5000/$(params.NAMESPACE_DEV)/$(params.APP_NAME):dev-$(tasks.generate-tag.results.image-tag)
+            '-n$(params.NAMESPACE_DEV)'
+      runAfter:
+        - oc-tag-image-for-dev
+      taskRef:
+        kind: ClusterTask
+        name: openshift-client
     - name: push-img-to-external-registry
       params:
         - name: srcImageURL
@@ -123,7 +134,7 @@ spec:
             docker://image-registry.openshift-image-registry.svc:5000/$(params.NAMESPACE_DEV)/$(params.APP_NAME):dev-$(tasks.generate-tag.results.image-tag)
         - name: destImageURL
           value: >-
-            docker://nexus3-nexus.apps.cluster-n2gjh.n2gjh.sandbox1456.opentlc.com/repository/mdocker/$(params.NAMESPACE_DEV)/$(params.APP_NAME):prod-$(tasks.generate-tag.results.image-tag)
+            docker://$(params.EXTERNAL_REG_NEXUS_URL)/repository/nexus-registry/$(params.NAMESPACE_DEV)/$(params.APP_NAME):prod-$(tasks.generate-tag.results.image-tag)
         - name: srcTLSverify
           value: 'false'
         - name: destTLSverify
@@ -139,11 +150,11 @@ spec:
     - name: update-kustomize-repo
       params:
         - name: gitRepositoryUrl
-          value: 'https://github.com/almeidarommel/hellosvc-kustomize-repo'
+          value: 'https://github.com/rafamqrs/spring-service-kustomize'
         - name: gitRepositoryRevision
           value: prod
         - name: gitPath
-          value: hello-service-kustomize/overlays/development
+          value: spring-service/overlays/development
         - name: fileName
           value: deployment-patches.yaml
         - name: image
@@ -157,17 +168,6 @@ spec:
       taskRef:
         kind: Task
         name: update-kustomize-repo
-    - name: openshift-client-1-5-0
-      params:
-        - name: SCRIPT
-          value: oc help
-        - name: VERSION
-          value: latest
-      runAfter:
-        - oc-tag-image-for-dev
-      taskRef:
-        kind: ClusterTask
-        name: openshift-client-1-5-0
   workspaces:
     - name: output
     - name: maven-settings
