@@ -18,6 +18,6 @@ public class HelloService {
 
 	@GetMapping(path = { "/hello", "/hello/{name}" }, produces = TEXT_PLAIN_VALUE)
 	public String hello(@PathVariable(required = false) Optional<String> name) {
-		return this.message + " " + name.orElse("World 3");
+		return this.message + " " + name.orElse("World 4");
 	}
 }
