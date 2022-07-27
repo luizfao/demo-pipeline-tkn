@@ -160,7 +160,7 @@ spec:
         - name: image
           value: hello-service
         - name: imageTag
-          value: prod-\$(tasks.generate-tag.results.image-tag)
+          value: prod-$(tasks.generate-tag.results.image-tag)
         - name: verbose
           value: 'true'
       runAfter:
