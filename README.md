@@ -17,25 +17,25 @@ There are   projects that we need to this sample:
 
 
 ### Create the springs projects.
-- hello-spring-dev
-- hello-spring-prod
-- spring-pipeline
+- hello-dev
+- hello-prod
+- hello-pipeline
 
 We're gonna use the *spring-pipeline* project to build and run the openshift pipeline, so for that we have to give the right permission for the service account *pipeline* then it will be able to execute the necessaries tasks on the other two springs projects.
 
 ```shell
     oc policy add-role-to-user \
     edit \
-    system:serviceaccount:spring-pipeline:pipeline \
+    system:serviceaccount:hello-pipeline:pipeline \
     --rolebinding-name=pipeline-edit \
-    -n hello-spring-dev
+    -n hello-dev
 ```
 ```shell
     oc policy add-role-to-user \
     edit \
-    system:serviceaccount:spring-pipeline:pipeline \
+    system:serviceaccount:hello-pipeline:pipeline \
     --rolebinding-name=pipeline-edit \
-    -n hello-spring-prod
+    -n hello-prod
 ```
 
 Ok, without futher ado, we can finally start the Continuous Integration, so we're gonna create the pipeline as img below:
@@ -60,7 +60,7 @@ oc apply -f https://raw.githubusercontent.com/rafamqrs/demo-pipeline-tkn/main/pi
     --from-literal=username=${GITHUB_USER} \
     --from-literal=password=${GITHUB_TOKEN} \
     --type "kubernetes.io/basic-auth" \
-    -n spring-pipeline
+    -n hello-pipeline
 ```
 4- OpenShift pipelines associate credentials with URLs via an annotation on the secret
 ```shell
@@ -77,7 +77,7 @@ oc apply -f https://raw.githubusercontent.com/rafamqrs/demo-pipeline-tkn/main/pi
    --from-literal=username=admin \
    --from-literal=password=admin123 \
    --type "kubernetes.io/basic-auth" \
-   -n spring-pipeline
+   -n hello-pipeline
 
     # Annotate the secret to specify a container registry URL, you can use the service, but the ideia here was to use an external registry
     oc annotate secret nexus-access "tekton.dev/docker-0=https://external-registry-nexus.apps.cluster-c925.c925.example.opentlc.com" -n spring-pipeline
