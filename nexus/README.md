@@ -82,3 +82,6 @@ https://blog.sonatype.com/using-nexus-3-as-your-repository-part-1-maven-artifact
 
 ### Configure a external registry with Nexus
 https://tomd.xyz/openshift-nexus-docker-registry/
+
+Don't forget to create a edge route to pull the images
+
