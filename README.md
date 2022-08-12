@@ -9,11 +9,11 @@ There are   projects that we need to this sample:
 - sonarqube
 
 ### Deploy and create a Nexus instance
-[NEXUS](https://github.com/rafamqrs/demo-pipeline-tkn/blob/main/nexus/README.md)
+[NEXUS](https://github.com/luizfao/demo-pipeline-tkn/blob/main/nexus/README.md)
 
 
 ### Deploy SonarQube
-[SONARQUBE](https://github.com/rafamqrs/demo-pipeline-tkn/blob/main/sonarqube/sonarqube.adoc)
+[SONARQUBE](https://github.com/luizfao/demo-pipeline-tkn/blob/main/sonarqube/sonarqube.adoc)
 
 
 ### Create the springs projects.
@@ -40,18 +40,18 @@ We're gonna use the *spring-pipeline* project to build and run the openshift pip
 
 Ok, without futher ado, we can finally start the Continuous Integration, so we're gonna create the pipeline as img below:
 
-![Pipeline](https://github.com/rafamqrs/demo-pipeline-tkn/blob/main/imgs/pipeline.png)
+![Pipeline](https://github.com/luizfao/demo-pipeline-tkn/blob/main/imgs/pipeline.png)
 
 Now let's follow the steps below: 
 1- Create a persistent volume for the workspace
 ```shell
-oc apply -f https://raw.githubusercontent.com/rafamqrs/demo-pipeline-tkn/main/pipelines-src/pvc.yaml
+oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pipelines-src/pvc.yaml -n hello-pipeline
 ```
 2- Create all required tasks
 ```shell
-oc apply -f https://raw.githubusercontent.com/rafamqrs/demo-pipeline-tkn/main/pipelines-src/task/sonarqube-scanner.yaml
-oc apply -f https://raw.githubusercontent.com/rafamqrs/demo-pipeline-tkn/main/pipelines-src/task/generate-tag.yaml
-oc apply -f https://raw.githubusercontent.com/rafamqrs/demo-pipeline-tkn/main/pipelines-src/task/update-kustomize-repo.yaml
+oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pipelines-src/task/sonarqube-scanner.yaml -n hello-pipeline
+oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pipelines-src/task/generate-tag.yaml -n hello-pipeline
+oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pipelines-src/task/update-kustomize-repo.yaml -n hello-pipeline
 ```
 
 3- Create a secret with the github credential
@@ -64,11 +64,11 @@ oc apply -f https://raw.githubusercontent.com/rafamqrs/demo-pipeline-tkn/main/pi
 ```
 4- OpenShift pipelines associate credentials with URLs via an annotation on the secret
 ```shell
-    oc annotate secret github-personal-access-token "tekton.dev/git-0=${GITHUB_URL}" -n spring-pipeline
+    oc annotate secret github-personal-access-token "tekton.dev/git-0=${GITHUB_URL}" -n hello-pipeline
 ```
 5- Attach that secret to pipeline service account
 ```shell
-    oc secrets link pipeline github-personal-access-token -n spring-pipeline
+    oc secrets link pipeline github-personal-access-token -n hello-pipeline
 ```
 
 6- Let's do the same with nexus credentials
@@ -80,7 +80,7 @@ oc apply -f https://raw.githubusercontent.com/rafamqrs/demo-pipeline-tkn/main/pi
    -n hello-pipeline
 
     # Annotate the secret to specify a container registry URL, you can use the service, but the ideia here was to use an external registry
-    oc annotate secret nexus-access "tekton.dev/docker-0=https://external-registry-nexus.apps.cluster-c925.c925.example.opentlc.com" -n spring-pipeline
+    oc annotate secret nexus-access "tekton.dev/docker-0=https://external-registry-nexus.apps.cluster-c925.c925.example.opentlc.com" -n hello-pipeline
 
     # Link the secret to the pipeline service account
     oc secrets link pipeline nexus-access    
@@ -88,7 +88,7 @@ oc apply -f https://raw.githubusercontent.com/rafamqrs/demo-pipeline-tkn/main/pi
 
 7- Create the pipeline
 ```shell
-    oc apply -f https://raw.githubusercontent.com/rafamqrs/demo-pipeline-tkn/main/pipelines-src/pipeline/pipeline.yaml 
+    oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pipelines-src/pipeline/pipeline.yaml -n hello-pipeline
 ```
 
 ### Triggers - TKN
