@@ -20,11 +20,11 @@ spec:
       name: NAMESPACE_DEV
       type: string
     - default: >-
-        http://example-nexusrepo-sonatype-nexus-service-nexus.apps.cluster-lbdc04.lbdc04.example.opentlc.com/repository/mcentral/
+        http://example-nexusrepo-sonatype-nexus-service-nexus.apps.cluster-lbdc04.lbdc04.example.opentlc.com/repository/maven-central/
       description: Maven mirror for Maven Builds
       name: MAVEN_MIRROR_URL
       type: string
-    - default: example-nexusrepo-sonatype-nexus-service-nexus.apps.cluster-lbdc04.lbdc04.example.opentlc.com
+    - default: nexus-registry-nexus.apps.cluster-lbdc04.lbdc04.example.opentlc.com
       description: External Registry (Nexus) for the Images
       name: EXTERNAL_REG_NEXUS_URL
       type: string
@@ -121,7 +121,7 @@ spec:
           value: >-
             oc set image dc/$(params.APP_NAME)
             $(params.APP_NAME)=image-registry.openshift-image-registry.svc:5000/$(params.NAMESPACE_DEV)/$(params.APP_NAME):dev-$(tasks.generate-tag.results.image-tag)
-            '-n$(params.NAMESPACE_DEV)'
+            -n $(params.NAMESPACE_DEV)
       runAfter:
         - oc-tag-image-for-dev
       taskRef:
@@ -134,7 +134,7 @@ spec:
             docker://image-registry.openshift-image-registry.svc:5000/$(params.NAMESPACE_DEV)/$(params.APP_NAME):dev-$(tasks.generate-tag.results.image-tag)
         - name: destImageURL
           value: >-
-            docker://$(params.EXTERNAL_REG_NEXUS_URL)/repository/nexus-registry/$(params.NAMESPACE_DEV)/$(params.APP_NAME):prod-$(tasks.generate-tag.results.image-tag)
+            docker://$(params.EXTERNAL_REG_NEXUS_URL)/repository/docker/$(params.NAMESPACE_DEV)/$(params.APP_NAME):prod-$(tasks.generate-tag.results.image-tag)
         - name: srcTLSverify
           value: 'false'
         - name: destTLSverify
@@ -154,7 +154,7 @@ spec:
         - name: gitRepositoryRevision
           value: prod
         - name: gitPath
-          value: spring-service/overlays/development
+          value: spring-service/overlays/production
         - name: fileName
           value: deployment-patches.yaml
         - name: image
