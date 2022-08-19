@@ -91,5 +91,19 @@ oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pip
     oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pipelines-src/pipeline/pipeline.yaml -n hello-pipeline
 ```
 
+8- Install and setup ArgoCD with RH Openshift GitOps Operator -- user: admin / find password in the secrets 
+
+9- Give permissions to ArgoCD in the hello-prod project:
+```shell
+    oc policy add-role-to-user \
+        edit \
+        system:serviceaccount:argocd:argocd-argocd-application-controller \
+        --rolebinding-name=argocd-edit \
+        -n hello-prod
+
+    # Label the project as ArgoCD managed
+    oc label namespace hello-prod argocd.argoproj.io/managed-by=argocd
+```
+
 ### Triggers - TKN
 https://dzone.com/articles/building-a-multi-feature-pipeline-with-openshift-p

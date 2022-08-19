@@ -78,6 +78,9 @@ spec:
     hostAliases: []
     podAnnotations: {}
 ```
+
+If the pods doesn't come up, check if there are any limits (memory) blocking it.
+
 ### Configure sonar as maven proxy.
 https://blog.sonatype.com/using-nexus-3-as-your-repository-part-1-maven-artifacts
 
