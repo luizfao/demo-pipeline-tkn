@@ -67,6 +67,7 @@ spec:
         value: >-
           -Xms5000M -Xmx5000M -XX:MaxDirectMemorySize=5000M
           -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap
+          -Djava.util.prefs.userRoot=/nexus-data/javaprefs
       - name: NEXUS_SECURITY_RANDOMPASSWORD
         value: 'false'
     securityContext: {}
