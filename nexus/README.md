@@ -79,13 +79,57 @@ spec:
     podAnnotations: {}
 ```
 
-If the pods doesn't come up, check if there are any limits (memory) blocking it.
+### If the pod doesn't come up, update the limitRange:
 
-### Configure sonar as maven proxy.
+```yaml
+kind: LimitRange
+apiVersion: v1
+metadata:
+  name: nexus-core-resource-limits
+  namespace: nexus
+  selfLink: /api/v1/namespaces/nexus/limitranges/nexus-core-resource-limits
+  uid: 66c67315-e051-43ca-92ce-aec112f5dbdf
+  resourceVersion: '67511'
+  creationTimestamp: '2022-08-22T12:46:02Z'
+  managedFields:
+    - manager: Mozilla
+      operation: Update
+      apiVersion: v1
+      time: '2022-08-22T12:55:13Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:spec':
+          'f:limits': {}
+spec:
+  limits:
+    - type: Container
+      max:
+        cpu: '4'
+        memory: 6Gi
+      default:
+        cpu: 500m
+        memory: 4Gi
+      defaultRequest:
+        cpu: 50m
+        memory: 4Gi
+    - type: Pod
+      max:
+        cpu: '4'
+        memory: 12Gi
+
+```
+
+### Expose Nexus
+oc expose svc/example-nexusrepo-sonatype-nexus-service -n nexus
+
+### Configure nexus as maven proxy.
 https://blog.sonatype.com/using-nexus-3-as-your-repository-part-1-maven-artifacts
 
 ### Configure a external registry with Nexus
 https://tomd.xyz/openshift-nexus-docker-registry/
+
+### Enable security Realm
+Go to Settings > Security > Realms; Add Docker Bearer Token Realm to the Active list.
 
 Don't forget to create a edge route to pull the images
 
