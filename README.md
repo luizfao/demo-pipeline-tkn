@@ -86,13 +86,16 @@ oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pip
    -n hello-pipeline
 
     # Annotate the secret to specify a container registry URL, you can use the service, but the ideia here was to use an external registry
-    oc annotate secret nexus-access "tekton.dev/docker-0=https://nexus-registry-nexus.apps.cluster-lb3bc6.lb3bc6.example.opentlc.com" -n hello-pipeline
+    oc annotate secret nexus-access "tekton.dev/docker-0=https://nexus-registry-nexus.apps.cluster-lbaf40.lbaf40.example.opentlc.com" -n hello-pipeline
 
     # Link the secret to the pipeline service account
     oc secrets link pipeline nexus-access -n hello-pipeline
 ```
 
 7- Create the pipeline
+Before creating the pipeline, update the following items:
+7.1- Default URLs referenced in the pipeline (ie.: sonar, nexus);
+7.2- Update Sonar Token
 ```shell
     oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pipelines-src/pipeline/pipeline.yaml -n hello-pipeline
 ```
@@ -120,3 +123,6 @@ First jkube execution must be ran locally to create the objects (this pipeline o
 ```shell
    mvn oc:resource oc:apply -Djkube.namespace=hello-dev -Djkube.generator.name=hello-service -Djkube.generator.alias=hello-service
 ```
+### First sync
+Update the server name in the deployment-patch image URL:
+https://github.com/luizfao/spring-service-kustomize/blob/prod/spring-service/overlays/production/deployment-patches.yaml

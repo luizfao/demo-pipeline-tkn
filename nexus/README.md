@@ -88,24 +88,12 @@ metadata:
   name: nexus-core-resource-limits
   namespace: nexus
   selfLink: /api/v1/namespaces/nexus/limitranges/nexus-core-resource-limits
-  uid: 66c67315-e051-43ca-92ce-aec112f5dbdf
-  resourceVersion: '67511'
-  creationTimestamp: '2022-08-22T12:46:02Z'
-  managedFields:
-    - manager: Mozilla
-      operation: Update
-      apiVersion: v1
-      time: '2022-08-22T12:55:13Z'
-      fieldsType: FieldsV1
-      fieldsV1:
-        'f:spec':
-          'f:limits': {}
 spec:
   limits:
     - type: Container
       max:
         cpu: '4'
-        memory: 6Gi
+        memory: 8Gi
       default:
         cpu: 500m
         memory: 4Gi
@@ -115,7 +103,7 @@ spec:
     - type: Pod
       max:
         cpu: '4'
-        memory: 12Gi
+        memory: 16Gi
 
 ```
 
