@@ -117,7 +117,7 @@ https://blog.sonatype.com/using-nexus-3-as-your-repository-part-1-maven-artifact
 https://tomd.xyz/openshift-nexus-docker-registry/
 
 ### Enable security Realm
-Go to Settings > Security > Realms; Add Docker Bearer Token Realm to the Active list.
+Go to Settings > Security > Realms; Add Docker Bearer Token Realm to the Active list.  
 
 Don't forget to create a edge route to pull the images
 

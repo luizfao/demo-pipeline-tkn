@@ -92,15 +92,17 @@ oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pip
     oc secrets link pipeline nexus-access -n hello-pipeline
 ```
 
-7- Create the pipeline
-Before creating the pipeline, update the following items:
-7.1- Default URLs referenced in the pipeline (ie.: sonar, nexus);
-7.2- Update Sonar Token
+7- Create the pipeline  
+Before creating the pipeline, update the following items:  
+7.1- Default URLs referenced in the pipeline (ie.: sonar, nexus);  
+7.2- Update Sonar Token  
+7.3- Create the pipeline:  
 ```shell
     oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pipelines-src/pipeline/pipeline.yaml -n hello-pipeline
 ```
 
-8- Install and setup ArgoCD with RH Openshift GitOps Operator -- user: admin / find password in the secret argocd-cluster
+8- Install and setup ArgoCD with RH Openshift GitOps Operator  
+user: admin / find password in the secret "argocd-cluster"
 
 9- Give permissions to ArgoCD in the hello-prod project:
 ```shell
