@@ -79,7 +79,7 @@ spec:
     podAnnotations: {}
 ```
 
-### If the pod doesn't come up, update the limitRange:
+### If the pod doesn't come up, update the limitRange OR just DELETE it:
 
 ```yaml
 kind: LimitRange
