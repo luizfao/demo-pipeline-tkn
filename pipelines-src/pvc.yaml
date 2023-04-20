@@ -4,7 +4,7 @@ metadata:
   name: workspace-pvc
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 2Gi

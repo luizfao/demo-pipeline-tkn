@@ -20,11 +20,11 @@ spec:
       name: NAMESPACE_DEV
       type: string
     - default: >-
-        http://example-nexusrepo-sonatype-nexus-service-nexus.apps.cluster-lbaf40.lbaf40.example.opentlc.com/repository/maven-central/
+        http://http://nexus-registry-sonatype-nexus-service-nexus.apps.cluster-vcj6d.vcj6d.example.opentlc.com/repository/maven-central/
       description: Maven mirror for Maven Builds
       name: MAVEN_MIRROR_URL
       type: string
-    - default: nexus-registry-nexus.apps.cluster-lbaf40.lbaf40.example.opentlc.com
+    - default: nexus-registry-sonatype-nexus-service-nexus.apps.cluster-vcj6d.vcj6d.example.opentlc.com
       description: External Registry (Nexus) for the Images
       name: EXTERNAL_REG_NEXUS_URL
       type: string
@@ -102,11 +102,11 @@ spec:
       params:
         - name: SONAR_HOST_URL
           value: >-
-            https://sonarqube-sonarqube.apps.cluster-lbaf40.lbaf40.example.opentlc.com/
+            https://sonarqube-sonarqube.apps.cluster-vcj6d.vcj6d.example.opentlc.com/
         - name: SONAR_PROJECT_KEY
           value: Java
         - name: SONAR_AUTH_TOKEN
-          value: 452663ad1b80e03c6a51cc43ba95e85f19a1de11
+          value: d5aa671cde269fd430a2e7e3c49bfce7292f0ddf
       runAfter:
         - set-image-in-dev
       taskRef:

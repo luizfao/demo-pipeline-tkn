@@ -1,0 +1,22 @@
+kind: LimitRange
+apiVersion: v1
+metadata:
+  name: nexus-core-resource-limits
+  namespace: nexus
+  selfLink: /api/v1/namespaces/nexus/limitranges/nexus-core-resource-limits
+spec:
+  limits:
+    - type: Container
+      max:
+        cpu: '4'
+        memory: 8Gi
+      default:
+        cpu: 500m
+        memory: 4Gi
+      defaultRequest:
+        cpu: 50m
+        memory: 4Gi
+    - type: Pod
+      max:
+        cpu: '4'
+        memory: 16Gi
