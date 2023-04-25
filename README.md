@@ -7,7 +7,7 @@ Install operators:
 - Nexus
 
 There are some projects that we need to this sample:
-- haello-dev
+- hello-dev
 - hello-prod
 - hello-pipeline
 - nexus
@@ -22,10 +22,19 @@ There are some projects that we need to this sample:
 [SONARQUBE](https://github.com/luizfao/demo-pipeline-tkn/blob/main/sonarqube/sonarqube.adoc)
 
 
+### Initialize variables to be used
+```shell
+export GITHUB_USER=luizfao
+export GITHUB_TOKEN=generate your token
+export GITHUB_URL=https://github.com/luizfao/demo-pipeline-tkn
+```
+
 ### Create the springs projects.
-- hello-dev
-- hello-prod
-- hello-pipeline
+```shell
+oc new-project hello-dev
+oc new-project hello-prod
+oc new-project hello-pipeline
+```
 
 We're gonna use the *hello-pipeline* project to build and run the openshift pipeline, so for that we have to give the right permission for the service account *pipeline* then it will be able to execute the necessaries tasks on the other two springs projects.
 

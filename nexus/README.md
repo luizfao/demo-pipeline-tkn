@@ -1,4 +1,34 @@
 # Install Nexus using OperatorHub
+
+## Adjust resource limits
+
+```yaml
+kind: LimitRange
+apiVersion: v1
+metadata:
+  name: nexus-core-resource-limits
+  namespace: nexus
+  selfLink: /api/v1/namespaces/nexus/limitranges/nexus-core-resource-limits
+spec:
+  limits:
+    - type: Container
+      max:
+        cpu: '4'
+        memory: 8Gi
+      default:
+        cpu: 500m
+        memory: 4Gi
+      defaultRequest:
+        cpu: 50m
+        memory: 4Gi
+    - type: Pod
+      max:
+        cpu: '4'
+        memory: 16Gi
+
+```
+
+## After installed the operator apply the following yaml in namespace nexus
 ```yaml
 apiVersion: sonatype.com/v1alpha1
 kind: NexusRepo
@@ -79,43 +109,20 @@ spec:
     podAnnotations: {}
 ```
 
-### If the pod doesn't come up, update the limitRange OR just DELETE it:
-
-```yaml
-kind: LimitRange
-apiVersion: v1
-metadata:
-  name: nexus-core-resource-limits
-  namespace: nexus
-  selfLink: /api/v1/namespaces/nexus/limitranges/nexus-core-resource-limits
-spec:
-  limits:
-    - type: Container
-      max:
-        cpu: '4'
-        memory: 8Gi
-      default:
-        cpu: 500m
-        memory: 4Gi
-      defaultRequest:
-        cpu: 50m
-        memory: 4Gi
-    - type: Pod
-      max:
-        cpu: '4'
-        memory: 16Gi
-
-```
-
 ### Create docker port
-```
+```shell
 oc patch deployment nexus-registry-sonatype-nexus  -p '{"spec":{"template":{"spec":{"containers":[{"name":"nexus","ports":[{"containerPort": 5000,"protocol":"TCP","name":"docker"}]}]}}}}' -n nexus
 ```
 
 ### Expose Nexus
-```
+```shell
 oc expose svc/nexus-registry-sonatype-nexus-service -n nexus
 oc expose deployment/nexus-registry-sonatype-nexus --name=nexus-registry --port=5000 -n nexus
+```
+
+### Create a edge route to pull the images
+```shell
+oc create route edge nexus-registry --service=nexus-registry -n nexus
 ```
 
 ### Configure nexus as maven proxy.
@@ -127,5 +134,4 @@ https://tomd.xyz/openshift-nexus-docker-registry/
 ### Enable security Realm
 Go to Settings > Security > Realms; Add Docker Bearer Token Realm to the Active list.  
 
-Don't forget to create a edge route to pull the images
 
