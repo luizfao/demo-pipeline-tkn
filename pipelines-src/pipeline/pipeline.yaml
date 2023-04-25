@@ -106,7 +106,7 @@ spec:
         - name: SONAR_PROJECT_KEY
           value: Java
         - name: SONAR_AUTH_TOKEN
-          value: d5aa671cde269fd430a2e7e3c49bfce7292f0ddf
+          value: 380d03537826d9cdea93bb3bfbd1597bba561828
       runAfter:
         - set-image-in-dev
       taskRef:
