@@ -24,7 +24,7 @@ spec:
       description: Maven mirror for Maven Builds
       name: MAVEN_MIRROR_URL
       type: string
-    - default: nexus-registry-sonatype-nexus-service-nexus.apps.cluster-h2xgw.h2xgw.example.opentlc.com
+    - default: nexus-registry-nexus.apps.cluster-h2xgw.h2xgw.example.opentlc.com
       description: External Registry (Nexus) for the Images
       name: EXTERNAL_REG_NEXUS_URL
       type: string

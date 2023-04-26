@@ -95,25 +95,35 @@ oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pip
    -n hello-pipeline
 
     # Annotate the secret to specify a container registry URL, you can use the service, but the ideia here was to use an external registry
-    oc annotate secret nexus-access "tekton.dev/docker-0=https://nexus-registry-nexus.apps.cluster-lbaf40.lbaf40.example.opentlc.com" -n hello-pipeline
+    oc annotate secret nexus-access "tekton.dev/docker-0=nexus-registry-nexus.apps.cluster-h2xgw.h2xgw.example.opentlc.com" -n hello-pipeline
 
     # Link the secret to the pipeline service account
     oc secrets link pipeline nexus-access -n hello-pipeline
 ```
-
-7- Create the pipeline  
-Before creating the pipeline, update the following items:  
-7.1- Default URLs referenced in the pipeline (ie.: sonar, nexus);  
-7.2- Update Sonar Token  
-7.3- Create the pipeline:  
+7- Make all tasks run as user 1000 (do not allow root)
 ```shell
-    oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pipelines-src/pipeline/pipeline.yaml -n hello-pipeline
+oc patch scc/pipelines-scc --type='json' --patch-file https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pipelines-src/pipeline/patch-pipelines-scc.json
 ```
 
-8- Install and setup ArgoCD with RH Openshift GitOps Operator  
+8- First build
+First jkube execution must be ran locally to create the objects (this pipeline only updates the objects) - checkout this project and go to demo-pipeline-tkn/hello-service folder:
+```shell
+   mvn oc:resource oc:apply -Djkube.namespace=hello-dev -Djkube.generator.name=hello-service -Djkube.generator.alias=hello-service
+```
+
+9- Create the pipeline  
+Before creating the pipeline, update the following items:  
+9.1- Default cluster name/URL referenced in the pipeline (ie.: sonar, nexus); *do not change nexus URLs*
+9.2- Update Sonar Token  
+9.3- Create the pipeline:  
+```shell
+    oc apply -f ./pipelines-src/pipeline/pipeline.yaml -n hello-pipeline
+```
+
+10- Install and setup ArgoCD with RH Openshift GitOps Operator  
 user: admin / find password in the secret "argocd-cluster"
 
-9- Give permissions to ArgoCD in the hello-prod project:
+11- Give permissions to ArgoCD in the hello-prod project:
 ```shell
     oc policy add-role-to-user \
         edit \
@@ -125,15 +135,9 @@ user: admin / find password in the secret "argocd-cluster"
     oc label namespace hello-prod argocd.argoproj.io/managed-by=argocd -n hello-prod
 ```
 
+12- First sync
+Update the server name in the deployment-patch image URL in *prod* branch:
+https://github.com/luizfao/spring-service-kustomize/blob/prod/spring-service/overlays/production/deployment-patches.yaml
+
 ### Triggers - TKN
 https://dzone.com/articles/building-a-multi-feature-pipeline-with-openshift-p
-
-
-### First execution
-First jkube execution must be ran locally to create the objects (this pipeline only updates the objects)
-```shell
-   mvn oc:resource oc:apply -Djkube.namespace=hello-dev -Djkube.generator.name=hello-service -Djkube.generator.alias=hello-service
-```
-### First sync
-Update the server name in the deployment-patch image URL:
-https://github.com/luizfao/spring-service-kustomize/blob/prod/spring-service/overlays/production/deployment-patches.yaml
