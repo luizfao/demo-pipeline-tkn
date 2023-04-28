@@ -1,7 +1,7 @@
 # Install Nexus using OperatorHub
+Go to Operator Hub install Nexus
 
 ## Adjust resource limits
-
 ```yaml
 kind: LimitRange
 apiVersion: v1
@@ -114,7 +114,7 @@ spec:
 oc patch deployment nexus-registry-sonatype-nexus  -p '{"spec":{"template":{"spec":{"containers":[{"name":"nexus","ports":[{"containerPort": 5000,"protocol":"TCP","name":"docker"}]}]}}}}' -n nexus
 ```
 
-### Expose Nexus
+### Expose Nexus & docker port
 ```shell
 oc expose svc/nexus-registry-sonatype-nexus-service -n nexus
 oc expose deployment/nexus-registry-sonatype-nexus --name=nexus-registry --port=5000 -n nexus
