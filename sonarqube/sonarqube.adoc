@@ -1,8 +1,10 @@
 = Deploying the SonarQube
 
 For deploying the sonarqube we'll use the sonarqube template
-
+```shell
 oc new-app -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/sonarqube/sonarqube-template.yaml --param=SONARQUBE_VERSION=8.9.9-community -n sonarqube
+```
 
 Generate token: My account > Security > Generate Tokens.
+
 Update pipeline with URL and Token.
