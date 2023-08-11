@@ -102,7 +102,7 @@ oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pip
 ```
 7- Make all tasks run as user 1000 (do not allow root)
 ```shell
-oc patch scc/pipelines-scc --type='json' --patch-file https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pipelines-src/pipeline/patch-pipelines-scc.json
+oc patch scc pipelines-scc --type='json' -p '[{"op": "replace","path": "/runAsUser/type","value": "MustRunAs"},{"op": "add","path": "/runAsUser/uid","value": 1000}]'
 ```
 
 8- First build
