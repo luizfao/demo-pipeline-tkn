@@ -105,8 +105,8 @@ oc apply -f https://raw.githubusercontent.com/luizfao/demo-pipeline-tkn/main/pip
 oc patch scc pipelines-scc --type='json' -p '[{"op": "replace","path": "/runAsUser/type","value": "MustRunAs"},{"op": "add","path": "/runAsUser/uid","value": 1000}]'
 ```
 
-8- First build
-First jkube execution must be ran locally to create the objects (this pipeline only updates the objects) - checkout this project and go to demo-pipeline-tkn/hello-service folder:
+8- First build (optional)
+First jkube execution must be ran locally to create the objects in dev namespace (this pipeline only updates the objects) - checkout this project and go to demo-pipeline-tkn/hello-service folder:
 ```shell
    mvn oc:resource oc:apply -Djkube.namespace=hello-dev -Djkube.generator.name=hello-service -Djkube.generator.alias=hello-service
 ```
@@ -135,7 +135,19 @@ user: admin / find password in the secret "argocd-cluster"
     oc label namespace hello-prod argocd.argoproj.io/managed-by=argocd -n hello-prod
 ```
 
-12- First sync
+12- Give permissions to ArgoCD in the hello-dev project:
+```shell
+    oc policy add-role-to-user \
+        edit \
+        system:serviceaccount:argocd:argocd-argocd-application-controller \
+        --rolebinding-name=argocd-edit \
+        -n hello-dev
+
+    # Label the project as ArgoCD managed
+    oc label namespace hello-dev argocd.argoproj.io/managed-by=argocd -n hello-dev
+```
+
+13- First sync
 Update the server name in the deployment-patch image URL in *prod* branch:
 https://github.com/luizfao/spring-service-kustomize/blob/prod/spring-service/overlays/production/deployment-patches.yaml
 
